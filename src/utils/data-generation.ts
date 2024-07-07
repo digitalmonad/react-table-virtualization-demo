@@ -21,7 +21,7 @@ export const generateData = (): Transaction[] => {
         .toISOString(),
     }),
     {
-      count: 1000,
+      count: 10000,
     }
   );
 };

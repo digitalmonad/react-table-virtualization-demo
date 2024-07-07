@@ -21,7 +21,7 @@ import { format, parseISO } from "date-fns";
 
 const data = flatten(groupAndSumDataByDate(generateData()));
 
-export const VirtualizedTable = ({}) => {
+export const NonVirtualizedTable = ({}) => {
   const columns = React.useMemo<ColumnDef<ProcessedTransaction>[]>(
     () => [
       {
@@ -84,27 +84,12 @@ export const VirtualizedTable = ({}) => {
 
   const { rows } = table.getRowModel();
 
-  const tableContainerRef = React.useRef<HTMLDivElement>(null);
-
-  const rowVirtualizer = useVirtualizer({
-    count: rows.length,
-    estimateSize: () => 20,
-    getScrollElement: () => tableContainerRef.current,
-    measureElement:
-      typeof window !== "undefined" &&
-      navigator.userAgent.indexOf("Firefox") === -1
-        ? (element) => element?.getBoundingClientRect().height
-        : undefined,
-    overscan: 20,
-  });
-
   return (
     <div className="flex flex-col border border-border bg-background text-foreground  p-2 rounded-md shadow-md w-full overflow-x-auto">
       <div className="mb-2">({data.length} rows)</div>
 
       <div
         className="border rounded-sm block w-full overflow-x-auto"
-        ref={tableContainerRef}
         style={{
           overflow: "auto",
           position: "relative",
@@ -134,24 +119,17 @@ export const VirtualizedTable = ({}) => {
               </tr>
             ))}
           </thead>
-          <tbody
-            style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
-            }}
-          >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+          <tbody>
+            {rows.map((virtualRow) => {
               const row = rows[virtualRow.index] as Row<ProcessedTransaction>;
               const isAggregation = row.original.isAggregation;
 
               return (
                 <tr
                   data-index={virtualRow.index}
-                  ref={(node) => rowVirtualizer.measureElement(node)}
                   key={row.id}
                   style={{
                     display: "flex",
-                    position: "absolute",
-                    transform: `translateY(${virtualRow.start}px)`,
                     width: "100%",
                     height: 20,
                   }}
